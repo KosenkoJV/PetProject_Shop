@@ -1,40 +1,53 @@
 package org.example;
 
+import org.example.Service.GetPriceService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/delivery")
+@RequestMapping("/shop")
 public class Controller {
 
-    private final OrderRepository orderRepository;
+    private final ProductRepository productRepository;
     private final GetPriceService getPriceService;
 
-    private Controller(OrderRepository orderRepository,
+    private Controller(ProductRepository productRepository,
                        GetPriceService getPriceService){
-        this.orderRepository = orderRepository;
+        this.productRepository = productRepository;
         this.getPriceService = getPriceService;
     }
 
-    @PostMapping("/order")
-    public Order order(
-            @RequestParam String name_food,
-            @RequestParam int price_food){
-        Order foodObject = new Order();
-        foodObject.setNameFood(name_food);
-        foodObject.setPriceFood(price_food);
-        return orderRepository.save(foodObject);
+    @PostMapping("/product")
+    public Product product(
+            @RequestParam String name_product,
+            @RequestParam int price_product){
+        Product productObject = new Product();
+        productObject.setNameProduct(name_product);
+        productObject.setPriceProduct(price_product);
+        return productRepository.save(productObject);
     }
     @GetMapping("/price")
     public int Price(
-            @RequestParam String name_food,
-            @RequestParam int count_food){
-        return getPriceService.getPrice(name_food, count_food);
+            @RequestParam String name_product,
+            @RequestParam int count_product){
+        return getPriceService.getPrice(name_product, count_product);
+    }
+    @PatchMapping("/updatePrice")
+    public Product updatePrice(
+            @RequestParam String name_product,
+            @RequestParam int price_product){
+        Product product = productRepository.findByNameProduct(name_product);
+        product.setPriceProduct(price_product);
+        return productRepository.save(product);
     }
 
 }
+/*
+Invoke-WebRequest -Uri "http://localhost:8080/shop/product" -Method POST -Body @{
+    name_product = "bread"
+     price_product = "55"}
 
-//Invoke-WebRequest -Uri "http://localhost:8080/delivery/order" -Method POST -Body @{
-  //  name_food = "bread"
-    // price_food = "55"}
+Invoke-WebRequest -Uri "http://localhost:8080/shop/price?name_product=bread&count_product=2" -Method GET
 
-// Invoke-WebRequest -Uri "http://localhost:8080/delivery/price?name_food=bread&count_food=2" -Method GET
+Invoke-WebRequest -Uri "http://localhost:8080/shop/updatePrice?name_product=bread&price_product=50" -Method PATCH
+
+ */
